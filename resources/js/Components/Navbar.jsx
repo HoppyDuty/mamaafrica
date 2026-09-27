@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Link, usePage } from '@inertiajs/react';
-import { ShoppingCart, Menu, X, Sun } from 'lucide-react';
+import { ShoppingCart, Menu, X } from 'lucide-react';
+import AfricaIcon from './icons/AfricaIcon';
 import { useLanguage } from '../Contexts/LanguageContext';
 import { useCurrency } from '../Contexts/CurrencyContext';
 
 function Mark() {
     return (
         <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-dark">
-            <Sun className="h-5 w-5 text-brand-gold" strokeWidth={2} />
+            <AfricaIcon className="h-5 w-5 text-brand-gold" />
         </span>
     );
 }
