@@ -25,7 +25,7 @@ export default function AttendantServices({ services, shop }) {
                             {services.data.map((service) => (
                                 <tr key={service.id} className="transition hover:bg-gray-50/50">
                                     <td className="whitespace-nowrap px-6 py-4">
-                                        <img src={service.image || 'https://placehold.co/80x80/8B4513/FFFFFF?text=Service'} alt={service.name} className="h-10 w-10 rounded-lg border border-gray-100 object-cover" />
+                                        <img src={service.images?.[0] || 'https://placehold.co/80x80/8B4513/FFFFFF?text=Service'} alt={service.name} className="h-10 w-10 rounded-lg border border-gray-100 object-cover" />
                                     </td>
                                     <td className="whitespace-nowrap px-6 py-4 text-sm font-semibold text-gray-900">{service.name}</td>
                                     <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">{service.category?.name || 'General'}</td>

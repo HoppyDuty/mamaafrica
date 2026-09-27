@@ -76,8 +76,8 @@ export default function ServicesIndex({ services, shops, filters }) {
                                 {services.data.map(service => (
                                     <tr key={service.id} className="hover:bg-gray-50/50 transition">
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <img 
-                                                src={service.image || 'https://placehold.co/80x80/8B4513/FFFFFF?text=Service'} 
+                                            <img
+                                                src={service.images?.[0] || 'https://placehold.co/80x80/8B4513/FFFFFF?text=Service'}
                                                 alt={service.name}
                                                 className="w-10 h-10 object-cover rounded-lg border border-gray-100"
                                             />
