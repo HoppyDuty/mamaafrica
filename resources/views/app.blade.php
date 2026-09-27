@@ -13,7 +13,8 @@
         <!-- Scripts -->
         @routes
         @viteReactRefresh
-        @vite(['resources/js/app.jsx', "resources/js/Pages/{$page['component']}.jsx"])
+        {{-- app.jsx eager-loads every page itself, so it's the only Vite entry needed. --}}
+        @vite(['resources/js/app.jsx'])
         @inertiaHead
     </head>
     <body class="font-sans antialiased bg-brand-light text-brand-dark">
