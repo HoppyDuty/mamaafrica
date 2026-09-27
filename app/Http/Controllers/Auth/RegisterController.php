@@ -65,6 +65,8 @@ class RegisterController extends Controller
             logger()->error('Failed to send welcome email to ' . $user->email . ': ' . $e->getMessage());
         }
 
-        return redirect('/');
+        // Force a full browser reload (not a client-side Inertia visit) so the
+        // navbar can't serve a stale prefetched/unauthenticated page from cache.
+        return Inertia::location('/');
     }
 }

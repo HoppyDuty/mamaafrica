@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\FoodController;
@@ -29,11 +28,14 @@ Route::get('/services', [ServiceController::class, 'index'])->name('services.ind
 Route::get('/services/{service:slug}', [ServiceController::class, 'show'])->name('services.show');
 
 Route::get('/about', fn () => Inertia::render('About'))->name('about');
-Route::get('/api/shops', [ShopController::class, 'apiList'])->name('api.shops');
-Route::get('/api/foods', [ShopController::class, 'apiFoods'])->name('api.foods');
+
+Route::middleware('throttle:60,1')->group(function () {
+    Route::get('/api/shops', [ShopController::class, 'apiList'])->name('api.shops');
+    Route::get('/api/foods', [ShopController::class, 'apiFoods'])->name('api.foods');
+});
 
 // ─────────────────────────────────────────
-// GOOGLE OAUTH & MANUAL LOGIN
+// MANUAL LOGIN & REGISTRATION
 // ─────────────────────────────────────────
 Route::middleware('guest')->group(function () {
     Route::get('/login', [App\Http\Controllers\Auth\LoginController::class, 'showLoginForm'])->name('login');
@@ -41,17 +43,20 @@ Route::middleware('guest')->group(function () {
         ->withoutMiddleware([VerifyCsrfToken::class]);
     Route::get('/register', [App\Http\Controllers\Auth\RegisterController::class, 'showRegistrationForm'])->name('register');
     Route::post('/register', [App\Http\Controllers\Auth\RegisterController::class, 'register']);
-    Route::get('/auth/google', [GoogleController::class, 'redirect'])->name('auth.google');
-    Route::get('/auth/google/callback', [GoogleController::class, 'callback'])->name('auth.google.callback');
 });
 
-Route::post('/logout', function () {
+Route::post('/logout', function (Request $request) {
     Auth::logout();
-    return redirect('/');
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
+
+    // Force a full browser reload so the navbar can't serve a stale
+    // prefetched/authenticated page from the client-side Inertia cache.
+    return Inertia::location('/');
 })->name('logout');
 
 // Public order log route (accessible to guests and authenticated users)
-Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
+Route::post('/orders', [OrderController::class, 'store'])->name('orders.store')->middleware('throttle:20,1');
 
 // ─────────────────────────────────────────
 // AUTHENTICATED USER ROUTES
