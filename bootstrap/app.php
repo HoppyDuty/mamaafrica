@@ -11,6 +11,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Render (and most PaaS hosts) terminate TLS at their edge proxy and
+        // forward plain HTTP to the container, adding X-Forwarded-* headers.
+        // Without trusting those headers, Laravel thinks every request is
+        // HTTP and generates http:// asset/URL links even on an https:// site.
+        $middleware->trustProxies(at: '*');
+
         $middleware->web(append: [
             \App\Http\Middleware\HandleInertiaRequests::class,
             \App\Http\Middleware\HttpCacheHeaders::class,
