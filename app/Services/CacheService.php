@@ -5,8 +5,13 @@ namespace App\Services;
 use Illuminate\Support\Facades\Cache;
 
 /**
- * Centralized cache service with aggressive TTLs.
- * All public-facing data is cached in Redis.
+ * Centralized cache service backed by Redis.
+ *
+ * Listing endpoints (products/foods/services) are cached per filter
+ * combination, so a plain Cache::forget() can never reach every variant.
+ * Each remember() call below is tagged with its resource (and 'home',
+ * since the homepage aggregates all of them); clearing a resource flushes
+ * every cached variant for it in one call via Cache::tags(...)->flush().
  */
 class CacheService
 {
@@ -25,52 +30,77 @@ class CacheService
 
     public static function rememberHome(callable $callback): mixed
     {
-        return Cache::remember('home.page', self::HOME_TTL, $callback);
+        return Cache::tags(['home', 'products', 'foods', 'services'])
+            ->remember('home.page', self::HOME_TTL, $callback);
     }
 
     public static function rememberProducts(string $key, callable $callback): mixed
     {
-        return Cache::remember("products.{$key}", self::PRODUCTS_TTL, $callback);
+        return Cache::tags(['products'])->remember("products.{$key}", self::PRODUCTS_TTL, $callback);
     }
 
     public static function rememberProduct(int|string $id, callable $callback): mixed
     {
-        return Cache::remember("product.{$id}", self::PRODUCT_TTL, $callback);
+        return Cache::tags(['products'])->remember("product.{$id}", self::PRODUCT_TTL, $callback);
+    }
+
+    public static function rememberRelatedProducts(int|string $id, callable $callback): mixed
+    {
+        return Cache::tags(['products'])->remember("product.related.{$id}", 600, $callback);
     }
 
     public static function rememberServices(string $key, callable $callback): mixed
     {
-        return Cache::remember("services.{$key}", self::SERVICES_TTL, $callback);
+        return Cache::tags(['services'])->remember("services.{$key}", self::SERVICES_TTL, $callback);
     }
 
     public static function rememberService(int|string $id, callable $callback): mixed
     {
-        return Cache::remember("service.{$id}", self::SERVICE_TTL, $callback);
+        return Cache::tags(['services'])->remember("service.{$id}", self::SERVICE_TTL, $callback);
+    }
+
+    public static function rememberRelatedServices(int|string $id, callable $callback): mixed
+    {
+        return Cache::tags(['services'])->remember("service.related.{$id}", 600, $callback);
     }
 
     public static function rememberFoods(string $key, callable $callback): mixed
     {
-        return Cache::remember("foods.{$key}", self::FOODS_TTL, $callback);
+        return Cache::tags(['foods'])->remember("foods.{$key}", self::FOODS_TTL, $callback);
     }
 
     public static function rememberFood(int|string $id, callable $callback): mixed
     {
-        return Cache::remember("food.{$id}", self::FOOD_TTL, $callback);
+        return Cache::tags(['foods'])->remember("food.{$id}", self::FOOD_TTL, $callback);
     }
 
-    public static function rememberCategories(callable $callback): mixed
+    public static function rememberRelatedFoods(int|string $id, callable $callback): mixed
     {
-        return Cache::remember('categories.all', self::CATEGORIES_TTL, $callback);
+        return Cache::tags(['foods'])->remember("food.related.{$id}", 600, $callback);
+    }
+
+    /**
+     * @param string $type product|food|service — each type gets its own key
+     *                      so listings never leak each other's categories.
+     */
+    public static function rememberCategories(string $type, callable $callback): mixed
+    {
+        return Cache::tags(['categories'])->remember("categories.{$type}", self::CATEGORIES_TTL, $callback);
     }
 
     public static function rememberShops(callable $callback): mixed
     {
-        return Cache::remember('shops.active', self::SHOPS_TTL, $callback);
+        return Cache::tags(['shops'])->remember('shops.active', self::SHOPS_TTL, $callback);
+    }
+
+    public static function rememberAdminShopsList(callable $callback): mixed
+    {
+        return Cache::tags(['shops'])->remember('admin.shops_list', 300, $callback);
     }
 
     public static function rememberReviews(callable $callback): mixed
     {
-        return Cache::remember('reviews.active', self::REVIEWS_TTL, $callback);
+        return Cache::tags(['reviews', 'home'])->remember('reviews.active', self::REVIEWS_TTL, $callback);
     }
 
     public static function rememberAdminStats(callable $callback): mixed
@@ -79,53 +109,58 @@ class CacheService
     }
 
     // ── Cache invalidation helpers ──
+    // Flushing a tag removes every key ever stored under it, including
+    // every filtered listing variant and the homepage aggregate.
 
     public static function clearProducts(): void
     {
-        Cache::forget('home.page');
-        Cache::forget('products.all');
-        Cache::forget('admin.shops_list');
+        Cache::tags(['products'])->flush();
+        Cache::tags(['home'])->flush();
     }
 
     public static function clearServices(): void
     {
-        Cache::forget('home.page');
-        Cache::forget('services.all');
+        Cache::tags(['services'])->flush();
+        Cache::tags(['home'])->flush();
     }
 
     public static function clearFoods(): void
     {
-        Cache::forget('home.page');
-        Cache::forget('foods.all');
+        Cache::tags(['foods'])->flush();
+        Cache::tags(['home'])->flush();
     }
 
+    // Kept for call-site clarity; a single item's cache is covered by its
+    // resource tag, but editing one item should still invalidate listings
+    // (stock/price/is_active changes affect what shows up there too).
     public static function clearProduct(int $id): void
     {
-        Cache::forget("product.{$id}");
-        Cache::forget('home.page');
+        self::clearProducts();
     }
 
     public static function clearService(int $id): void
     {
-        Cache::forget("service.{$id}");
-        Cache::forget('home.page');
+        self::clearServices();
     }
 
     public static function clearFood(int $id): void
     {
-        Cache::forget("food.{$id}");
-        Cache::forget('home.page');
-        Cache::forget('foods.all');
+        self::clearFoods();
     }
 
     public static function clearShops(): void
     {
-        Cache::forget('shops.active');
-        Cache::forget('home.page');
+        Cache::tags(['shops'])->flush();
+        Cache::tags(['home'])->flush();
+    }
+
+    public static function clearCategories(): void
+    {
+        Cache::tags(['categories'])->flush();
     }
 
     public static function clearHomepage(): void
     {
-        Cache::forget('home.page');
+        Cache::tags(['home'])->flush();
     }
 }

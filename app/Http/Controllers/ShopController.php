@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\FoodResource;
+use App\Http\Resources\ShopResource;
 use App\Models\Product;
 use App\Models\Food;
 use App\Models\Category;
@@ -43,7 +45,7 @@ class ShopController extends Controller
             return $query->latest()->paginate(20)->withQueryString();
         });
 
-        $categories = CacheService::rememberCategories(function () {
+        $categories = CacheService::rememberCategories('product', function () {
             return Category::where('type', 'product')
                 ->with('children')
                 ->whereNull('parent_id')
@@ -65,16 +67,12 @@ class ShopController extends Controller
             return $product->load(['shop:id,name,country,city,phone_whatsapp', 'category:id,name,slug']);
         });
 
-        $related = \Illuminate\Support\Facades\Cache::remember(
-            "product.related.{$product->id}",
-            600,
-            fn() => Product::with('shop:id,name,country')
-                ->where('category_id', $product->category_id)
-                ->where('id', '!=', $product->id)
-                ->where('is_active', true)
-                ->select(['id', 'shop_id', 'category_id', 'name', 'slug', 'price_eur', 'price_ghs', 'images'])
-                ->take(4)->get()
-        );
+        $related = CacheService::rememberRelatedProducts($product->id, fn() => Product::with('shop:id,name,country')
+            ->where('category_id', $product->category_id)
+            ->where('id', '!=', $product->id)
+            ->where('is_active', true)
+            ->select(['id', 'shop_id', 'category_id', 'name', 'slug', 'price_eur', 'price_ghs', 'images'])
+            ->take(4)->get());
 
         $shops = CacheService::rememberShops(
             fn() => Shop::where('is_active', true)->get(['id', 'name', 'country', 'city', 'phone_whatsapp'])
@@ -92,7 +90,7 @@ class ShopController extends Controller
         $shops = CacheService::rememberShops(
             fn() => Shop::where('is_active', true)->get(['id', 'name', 'country', 'city', 'phone_whatsapp'])
         );
-        return response()->json($shops);
+        return ShopResource::collection($shops);
     }
 
     public function apiFoods()
@@ -104,6 +102,6 @@ class ShopController extends Controller
                 ->latest()
                 ->get();
         });
-        return response()->json($foods);
+        return FoodResource::collection($foods);
     }
 }

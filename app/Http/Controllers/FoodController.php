@@ -41,7 +41,7 @@ class FoodController extends Controller
             return $query->latest()->paginate(20)->withQueryString();
         });
 
-        $categories = CacheService::rememberCategories(function () {
+        $categories = CacheService::rememberCategories('food', function () {
             return Category::where('type', 'food')
                 ->with('children')
                 ->whereNull('parent_id')
@@ -59,14 +59,14 @@ class FoodController extends Controller
     {
         $deferProps = $request->header('X-Inertia') === 'true' || $request->header('X-Inertia') === '1';
 
-        $foodData = $food->load(['shop:id,name,country,city,phone_whatsapp', 'category:id,name,slug']);
+        $foodData = CacheService::rememberFood($food->id, fn () => $food->load(['shop:id,name,country,city,phone_whatsapp', 'category:id,name,slug']));
 
-        $related = Food::with('shop:id,name,country')
+        $related = CacheService::rememberRelatedFoods($food->id, fn () => Food::with('shop:id,name,country')
             ->where('category_id', $food->category_id)
             ->where('id', '!=', $food->id)
             ->where('is_active', true)
             ->select(['id', 'shop_id', 'category_id', 'name', 'slug', 'price_eur', 'price_ghs', 'images'])
-            ->take(4)->get();
+            ->take(4)->get());
 
         $shops = CacheService::rememberShops(
             fn() => Shop::where('is_active', true)->get(['id', 'name', 'country', 'city', 'phone_whatsapp'])

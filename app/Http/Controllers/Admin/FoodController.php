@@ -10,7 +10,6 @@ use App\Models\Shop;
 use App\Services\CacheService;
 use App\Services\CloudinaryService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 
 class FoodController extends Controller
@@ -24,7 +23,7 @@ class FoodController extends Controller
 
         return Inertia::render('Admin/Foods/Index', [
             'foods'   => $query->latest()->paginate(30)->withQueryString(),
-            'shops'   => Cache::remember('admin.shops_list', 300, fn () => Shop::all(['id', 'name', 'country'])),
+            'shops'   => CacheService::rememberAdminShopsList(fn () => Shop::all(['id', 'name', 'country'])),
             'filters' => $request->only(['search', 'shop_id']),
         ]);
     }

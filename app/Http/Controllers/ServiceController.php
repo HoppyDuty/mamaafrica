@@ -7,7 +7,6 @@ use App\Models\Category;
 use App\Models\Shop;
 use App\Services\CacheService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 
 class ServiceController extends Controller
@@ -39,7 +38,7 @@ class ServiceController extends Controller
             return $query->latest()->paginate(20)->withQueryString();
         });
 
-        $categories = Cache::remember('categories.service', 3600, function () {
+        $categories = CacheService::rememberCategories('service', function () {
             return Category::where('type', 'service')->get(['id', 'name', 'slug', 'icon']);
         });
 
@@ -58,17 +57,13 @@ class ServiceController extends Controller
             return $service->load(['shop:id,name,country,city,phone_whatsapp', 'category:id,name,slug']);
         });
 
-        $related = Cache::remember(
-            "service.related.{$service->id}",
-            600,
-            fn() => Service::with('shop:id,name,country')
-                ->where('category_id', $service->category_id)
-                ->where('id', '!=', $service->id)
-                ->where('is_active', true)
-                ->select(['id', 'shop_id', 'category_id', 'name', 'slug', 'price_eur', 'price_ghs', 'duration_minutes', 'images'])
-                ->take(4)
-                ->get()
-        );
+        $related = CacheService::rememberRelatedServices($service->id, fn() => Service::with('shop:id,name,country')
+            ->where('category_id', $service->category_id)
+            ->where('id', '!=', $service->id)
+            ->where('is_active', true)
+            ->select(['id', 'shop_id', 'category_id', 'name', 'slug', 'price_eur', 'price_ghs', 'duration_minutes', 'images'])
+            ->take(4)
+            ->get());
 
         $shops = CacheService::rememberShops(
             fn() => Shop::where('is_active', true)->get(['id', 'name', 'country', 'city', 'phone_whatsapp'])
