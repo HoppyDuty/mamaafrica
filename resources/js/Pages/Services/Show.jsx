@@ -71,14 +71,14 @@ export default function ServiceShow({ service, related = [], auth }) {
                         <button
                             type="button"
                             onClick={handleAddToCart}
-                            className={`absolute bottom-4 right-4 inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold shadow-sm transition ${isInCart ? 'bg-brand-dark text-white' : 'bg-white text-brand-brown hover:bg-brand-light'}`}
+                            className={`absolute right-4 top-4 inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold shadow-sm transition ${isInCart ? 'bg-brand-dark text-white' : 'bg-white text-brand-brown hover:bg-brand-light'}`}
                         >
                             <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
                                 <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
                             </svg>
                             {isInCart ? 'In cart' : 'Add to cart'}
                         </button>
-                        <div className="absolute bottom-0 left-0 p-4 sm:p-6 md:p-8">
+                        <div className="absolute inset-x-0 bottom-0 p-4 sm:p-6 md:p-8">
                             <div className="mb-2 text-sm font-semibold text-brand-gold">
                                 {service.category?.name}
                             </div>

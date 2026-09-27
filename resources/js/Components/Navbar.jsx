@@ -26,6 +26,18 @@ export default function Navbar({ user: propUser }) {
         setIsOpen(false);
     }, [url]);
 
+    // Lock body scroll while the mobile drawer is open so the page behind
+    // it can't scroll independently and bleed through the backdrop.
+    useEffect(() => {
+        if (isOpen) {
+            const previousOverflow = document.body.style.overflow;
+            document.body.style.overflow = 'hidden';
+            return () => {
+                document.body.style.overflow = previousOverflow;
+            };
+        }
+    }, [isOpen]);
+
     const navLinks = [
         { name: t('nav.home'), path: '/' },
         { name: t('nav.shop'), path: '/shop' },
