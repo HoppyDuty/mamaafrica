@@ -5,13 +5,12 @@ import Footer from '../../Components/Footer';
 import FoodCard from '../../Components/FoodCard';
 
 const FoodCardSkeleton = () => (
-    <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-soft animate-pulse">
-        <div className="h-40 w-full rounded-lg bg-gray-200" />
-        <div className="mt-4 h-4 w-3/4 rounded bg-gray-200" />
-        <div className="mt-2 h-4 w-1/2 rounded bg-gray-200" />
-        <div className="mt-4 flex items-center justify-between">
-            <div className="h-4 w-16 rounded bg-gray-200" />
-            <div className="h-8 w-20 rounded bg-gray-200" />
+    <div className="overflow-hidden rounded-2xl border border-brand-brown/10 bg-white animate-pulse">
+        <div className="aspect-[4/5] w-full bg-gray-100" />
+        <div className="p-5">
+            <div className="h-3 w-1/3 rounded bg-gray-100" />
+            <div className="mt-3 h-4 w-3/4 rounded bg-gray-100" />
+            <div className="mt-4 h-8 w-full rounded-full bg-gray-100" />
         </div>
     </div>
 );
@@ -25,7 +24,8 @@ export default function FoodsIndex({ foods = { data: [], links: [], total: 0 }, 
     const foodLinks = Array.isArray(foodCollection.links) ? foodCollection.links : [];
 
     const visitFoods = (params) => {
-        router.get('/foods', params, { preserveState: true, preserveScroll: true, only: ['foods', 'filters'] });
+        // No preserveScroll: filter changes should always land back at the top of the page.
+        router.get('/foods', params, { preserveState: true, only: ['foods', 'filters'] });
     };
 
     const handleFilterChange = (key, value) => {
@@ -45,41 +45,44 @@ export default function FoodsIndex({ foods = { data: [], links: [], total: 0 }, 
 
     const renderFilterContent = () => (
         <div className="space-y-6">
-            <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 md:p-0 md:border-0 md:bg-transparent">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Search</label>
-                <input 
-                    type="text" 
-                    placeholder="Search delicacies..." 
+            <div>
+                <label className="mb-2 block text-sm font-medium text-gray-700">Search</label>
+                <input
+                    type="text"
+                    placeholder="Search delicacies..."
                     value={filters.search || ''}
                     onChange={(e) => handleFilterChange('search', e.target.value)}
-                    className="w-full border-gray-300 rounded-md shadow-sm focus:ring-brand-gold focus:border-brand-gold text-sm"
+                    className="w-full text-sm"
                 />
             </div>
 
-            <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 md:p-0 md:border-0 md:bg-transparent">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+            <div>
+                <label className="mb-2 block text-sm font-medium text-gray-700">Category</label>
                 <div className="space-y-1">
-                    <button 
+                    <button
+                        type="button"
                         onClick={() => handleFilterChange('category', '')}
-                        className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition ${!filters.category ? 'bg-brand-brown text-white shadow-sm' : 'text-gray-600 hover:bg-gray-50'}`}
+                        className={`w-full rounded-lg px-3 py-2 text-left text-sm font-medium transition ${!filters.category ? 'bg-brand-brown text-white' : 'text-gray-600 hover:bg-brand-light'}`}
                     >
-                        All Foods
+                        All foods
                     </button>
                     {categories.map(cat => (
-                        <div key={cat.id} className="space-y-1">
-                            <button 
+                        <div key={cat.id}>
+                            <button
+                                type="button"
                                 onClick={() => handleFilterChange('category', cat.slug)}
-                                className={`w-full text-left px-3 py-2 rounded-lg text-sm font-semibold transition ${filters.category === cat.slug ? 'bg-brand-brown text-white shadow-sm' : 'text-brand-dark hover:bg-gray-50'}`}
+                                className={`w-full rounded-lg px-3 py-2 text-left text-sm font-semibold transition ${filters.category === cat.slug ? 'bg-brand-brown text-white' : 'text-brand-dark hover:bg-brand-light'}`}
                             >
                                 {cat.name}
                             </button>
                             {cat.children && cat.children.map(child => (
                                 <button
                                     key={child.id}
+                                    type="button"
                                     onClick={() => handleFilterChange('category', child.slug)}
-                                    className={`w-full text-left pl-6 pr-3 py-1.5 rounded-lg text-xs font-medium transition ${filters.category === child.slug ? 'bg-brand-gold/20 text-brand-brown font-bold' : 'text-gray-500 hover:bg-gray-50'}`}
+                                    className={`w-full rounded-lg py-1.5 pl-6 pr-3 text-left text-xs font-medium transition ${filters.category === child.slug ? 'bg-brand-gold/15 font-bold text-brand-brown' : 'text-gray-500 hover:bg-brand-light'}`}
                                 >
-                                    • {child.name}
+                                    {child.name}
                                 </button>
                             ))}
                         </div>
@@ -87,85 +90,95 @@ export default function FoodsIndex({ foods = { data: [], links: [], total: 0 }, 
                 </div>
             </div>
 
-            <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 md:p-0 md:border-0 md:bg-transparent">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Country Location</label>
+            <div>
+                <label className="mb-2 block text-sm font-medium text-gray-700">Location</label>
                 <div className="flex gap-2">
-                    <button 
-                        onClick={() => handleFilterChange('country', '')}
-                        className={`flex-1 text-center py-2 rounded-lg text-xs font-medium border transition ${!filters.country ? 'bg-brand-brown border-brand-brown text-white' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}
-                    >
-                        All
-                    </button>
-                    <button 
-                        onClick={() => handleFilterChange('country', 'DE')}
-                        className={`flex-1 text-center py-2 rounded-lg text-xs font-medium border transition ${filters.country === 'DE' ? 'bg-brand-brown border-brand-brown text-white' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}
-                    >
-                        Germany
-                    </button>
-                    <button 
-                        onClick={() => handleFilterChange('country', 'GH')}
-                        className={`flex-1 text-center py-2 rounded-lg text-xs font-medium border transition ${filters.country === 'GH' ? 'bg-brand-brown border-brand-brown text-white' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}
-                    >
-                        Ghana
-                    </button>
+                    {[['', 'All'], ['DE', 'Germany'], ['GH', 'Ghana']].map(([value, label]) => (
+                        <button
+                            key={value}
+                            type="button"
+                            onClick={() => handleFilterChange('country', value)}
+                            className={`flex-1 rounded-lg border py-2 text-xs font-medium transition ${(filters.country || '') === value ? 'border-brand-brown bg-brand-brown text-white' : 'border-brand-brown/15 text-gray-600 hover:bg-brand-light'}`}
+                        >
+                            {label}
+                        </button>
+                    ))}
                 </div>
             </div>
 
-            <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 md:p-0 md:border-0 md:bg-transparent">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Price Limit (€)</label>
+            <div>
+                <label className="mb-2 block text-sm font-medium text-gray-700">Price limit (€)</label>
                 <div className="flex items-center gap-2">
-                    <input 
-                        type="number" 
-                        placeholder="Min" 
+                    <input
+                        type="number"
+                        placeholder="Min"
                         value={priceDraft.min}
                         onChange={(e) => setPriceDraft(prev => ({ ...prev, min: e.target.value }))}
-                        className="w-full border-gray-300 rounded-md text-xs"
+                        className="w-full text-sm"
                     />
-                    <span className="text-gray-400">-</span>
-                    <input 
-                        type="number" 
-                        placeholder="Max" 
+                    <span className="text-gray-400">–</span>
+                    <input
+                        type="number"
+                        placeholder="Max"
                         value={priceDraft.max}
                         onChange={(e) => setPriceDraft(prev => ({ ...prev, max: e.target.value }))}
-                        className="w-full border-gray-300 rounded-md text-xs"
+                        className="w-full text-sm"
                     />
                 </div>
-                <button 
+                <button
+                    type="button"
                     onClick={handlePriceApply}
-                    className="w-full mt-3 bg-brand-brown text-white py-2 rounded-lg text-xs font-bold hover:bg-brand-dark transition"
+                    className="mt-3 w-full rounded-full border border-brand-brown/20 px-3 py-2 text-sm font-medium text-brand-brown transition hover:bg-brand-light"
                 >
-                    Apply Price Range
+                    Apply price range
+                </button>
+            </div>
+
+            <div className="flex flex-col gap-3 border-t border-brand-brown/10 pt-4">
+                {hasActiveFilters && (
+                    <button
+                        type="button"
+                        onClick={() => {
+                            visitFoods({});
+                            setIsMobileFiltersOpen(false);
+                        }}
+                        className="w-full rounded-full border border-red-200 px-4 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50"
+                    >
+                        Clear filters
+                    </button>
+                )}
+                <button
+                    type="button"
+                    onClick={() => setIsMobileFiltersOpen(false)}
+                    className="w-full rounded-full bg-brand-brown px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-dark md:hidden"
+                >
+                    Show results
                 </button>
             </div>
         </div>
     );
 
     return (
-        <div className="min-h-screen flex flex-col bg-brand-light">
+        <div className="flex min-h-screen flex-col bg-brand-light">
             <Head title="Food Menu - Mama Africa" />
             <Navbar user={auth?.user} />
 
-            <div className="relative bg-brand-dark text-white py-16 px-4 text-center overflow-hidden">
-                <div className="absolute top-[-50%] left-[-20%] w-[60vw] h-[60vw] rounded-full bg-brand-gold/10 blur-3xl"></div>
-                <div className="relative z-10 max-w-3xl mx-auto">
-                    <span className="text-xs font-bold tracking-widest text-brand-gold uppercase bg-brand-brown/40 border border-brand-gold/30 px-4 py-1.5 rounded-full mb-4 inline-block">
-                        African & International Cuisine
-                    </span>
-                    <h1 className="text-4xl md:text-6xl font-serif font-bold text-white mb-4">Taste of Home</h1>
-                    <p className="text-gray-300 text-sm md:text-base max-w-xl mx-auto">
-                        Indulge in delicious traditional dishes, local grills, drinks, and snacks prepared fresh at our kitchen locations.
-                    </p>
+            <div className="relative overflow-hidden bg-brand-dark py-14 text-center text-white">
+                <div className="pointer-events-none absolute -right-16 -top-24 h-72 w-72 rounded-full bg-brand-gold/10 blur-3xl" />
+                <div className="relative mx-auto max-w-2xl px-4">
+                    <h1 className="font-serif text-4xl font-bold md:text-5xl">Taste of home</h1>
+                    <p className="mt-4 text-gray-300">Traditional dishes, fresh ingredients, and drinks prepared at our kitchen locations across Germany and Ghana.</p>
                 </div>
             </div>
 
-            <main className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full flex flex-col lg:flex-row gap-8">
-                <aside className="hidden lg:block w-64 flex-shrink-0">
-                    <div className="bg-white p-6 rounded-2xl border border-gray-200/80 shadow-sm sticky top-24">
-                        <div className="flex items-center justify-between mb-4 border-b pb-2">
-                            <h3 className="font-bold text-lg text-brand-dark">Filters</h3>
+            <main className="mx-auto flex w-full max-w-7xl flex-grow flex-col gap-8 px-4 py-8 sm:px-6 sm:py-12 lg:flex-row lg:px-8">
+                <aside className="hidden w-64 flex-shrink-0 lg:block">
+                    <div className="sticky top-24 rounded-2xl border border-brand-brown/10 bg-white p-6">
+                        <div className="mb-4 flex items-center justify-between border-b border-brand-brown/10 pb-3">
+                            <h3 className="text-lg font-bold text-brand-dark">Filters</h3>
                             {hasActiveFilters && (
-                                <Link href="/foods" className="text-xs text-red-500 hover:text-red-700 font-semibold">
-                                    Reset All
+                                <Link href="/foods" className="text-xs font-semibold text-red-500 hover:text-red-700">
+                                    Reset all
                                 </Link>
                             )}
                         </div>
@@ -173,53 +186,62 @@ export default function FoodsIndex({ foods = { data: [], links: [], total: 0 }, 
                     </div>
                 </aside>
 
-                <div className="lg:hidden flex items-center justify-between bg-white px-4 py-3 rounded-xl border border-gray-200">
+                <div className="flex items-center justify-between rounded-2xl border border-brand-brown/10 bg-white px-4 py-3 lg:hidden">
                     <span className="text-sm font-semibold text-gray-700">{totalCount} items found</span>
-                    <button 
+                    <button
                         onClick={() => setIsMobileFiltersOpen(true)}
-                        className="bg-brand-brown text-white text-xs font-bold px-4 py-2 rounded-lg"
+                        className="rounded-full bg-brand-brown px-4 py-2 text-xs font-bold text-white"
                     >
                         Filters / Search
                     </button>
                 </div>
 
                 <div className="flex-grow">
-                    <div className="mb-4 hidden lg:flex items-center justify-between text-sm text-gray-500">
-                        <span>Showing {totalCount} gourmet items</span>
+                    <div className="mb-4 hidden items-center justify-between text-sm text-gray-500 lg:flex">
+                        <span>Showing {totalCount} items</span>
                     </div>
 
                     <Deferred data="foods" fallback={
-                        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
                             <FoodCardSkeleton />
                             <FoodCardSkeleton />
                             <FoodCardSkeleton />
                         </div>
                     }>
                         {foodItems.length === 0 ? (
-                            <div className="bg-white p-12 rounded-2xl border border-gray-200 text-center shadow-sm">
-                                <p className="text-gray-500 text-lg">No culinary items match your criteria.</p>
-                                <Link href="/foods" className="mt-4 inline-block text-brand-brown font-semibold underline">
+                            <div className="rounded-2xl border border-brand-brown/10 bg-white p-12 text-center">
+                                <p className="text-lg text-gray-500">No items match your criteria.</p>
+                                <Link href="/foods" className="mt-4 inline-block font-semibold text-brand-brown underline">
                                     Clear all filters
                                 </Link>
                             </div>
                         ) : (
                             <>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-                                    {foodItems.map(food => (
-                                        <FoodCard key={food.id} food={food} onAddToCart={auth?.user} />
+                                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+                                    {foodItems.map((food, index) => (
+                                        <div key={food.id} className="animate-fadeInUp" style={{ animationDelay: `${Math.min(index * 60, 300)}ms` }}>
+                                            <FoodCard food={food} />
+                                        </div>
                                     ))}
                                 </div>
 
                                 {foodLinks.length > 3 && (
                                     <div className="mt-12 flex flex-wrap justify-center gap-2">
                                         {foodLinks.map((link, i) => (
-                                            <Link 
-                                                key={i} 
-                                                href={link.url || '#'}
-                                                dangerouslySetInnerHTML={{ __html: link.label }}
-                                                className={`px-4 py-2 rounded-xl text-xs font-bold transition ${link.active ? 'bg-brand-brown text-white shadow-md' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'} ${!link.url ? 'opacity-40 cursor-not-allowed' : ''}`}
-                                                disabled={!link.url}
-                                            />
+                                            link.url ? (
+                                                <Link
+                                                    key={i}
+                                                    href={link.url}
+                                                    dangerouslySetInnerHTML={{ __html: link.label }}
+                                                    className={`rounded-full px-4 py-2 text-sm font-medium transition ${link.active ? 'bg-brand-brown text-white' : 'border border-brand-brown/15 bg-white text-gray-600 hover:bg-brand-light'}`}
+                                                />
+                                            ) : (
+                                                <span
+                                                    key={i}
+                                                    dangerouslySetInnerHTML={{ __html: link.label }}
+                                                    className="cursor-not-allowed rounded-full border border-brand-brown/10 bg-white px-4 py-2 text-sm text-gray-300"
+                                                />
+                                            )
                                         ))}
                                     </div>
                                 )}
@@ -230,16 +252,16 @@ export default function FoodsIndex({ foods = { data: [], links: [], total: 0 }, 
             </main>
 
             {isMobileFiltersOpen && (
-                <div className="fixed inset-0 z-50 lg:hidden flex">
+                <div className="fixed inset-0 z-50 flex lg:hidden">
                     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setIsMobileFiltersOpen(false)} />
-                    <div className="relative flex flex-col w-[80%] max-w-sm bg-white h-full p-6 shadow-2xl overflow-y-auto">
-                        <div className="flex items-center justify-between mb-6 border-b pb-3">
-                            <h3 className="font-bold text-lg text-brand-dark font-serif">Filters</h3>
-                            <button 
+                    <div className="relative flex h-full w-[80%] max-w-sm flex-col overflow-y-auto bg-white p-6 shadow-2xl">
+                        <div className="mb-6 flex items-center justify-between border-b border-brand-brown/10 pb-3">
+                            <h3 className="font-serif text-lg font-bold text-brand-dark">Filters</h3>
+                            <button
                                 onClick={() => setIsMobileFiltersOpen(false)}
-                                className="text-gray-400 hover:text-gray-600 font-bold"
+                                className="rounded-full p-2 text-gray-500 hover:bg-brand-light"
                             >
-                                Close
+                                ✕
                             </button>
                         </div>
                         {renderFilterContent()}

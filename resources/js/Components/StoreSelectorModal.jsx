@@ -114,20 +114,26 @@ export default function StoreSelectorModal({ isOpen, onClose, item, type = 'prod
     };
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fadeIn">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-gray-100 animate-slideUp">
+        <div
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fadeIn"
+            onClick={onClose}
+        >
+            <div
+                onClick={(e) => e.stopPropagation()}
+                className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[85vh] overflow-hidden border border-gray-100 animate-slideUp flex flex-col"
+            >
                 {/* Header */}
-                <div className="px-6 py-4 bg-brand-dark text-white flex justify-between items-center">
+                <div className="px-5 py-3.5 bg-brand-dark text-white flex justify-between items-center shrink-0">
                     <div>
-                        <h3 className="text-xl font-serif font-bold text-brand-gold">Complete Booking</h3>
+                        <h3 className="text-lg font-serif font-bold text-brand-gold">Complete Booking</h3>
                         <p className="text-xs text-gray-300 mt-0.5">Choose your store location and proceed to WhatsApp</p>
                     </div>
                     <button onClick={onClose} className="text-gray-300 hover:text-white transition">
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </button>
                 </div>
-                
-                <div className="p-6 space-y-6">
+
+                <div className="p-5 space-y-5 overflow-y-auto">
                     {/* Item Preview */}
                     <div className="bg-brand-light p-4 rounded-xl flex gap-4 border border-gray-100">
                         <img 

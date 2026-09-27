@@ -63,19 +63,21 @@ export default function ProductCard({ product }) {
                 href={`/shop/${product.slug}`}
                 prefetch={['hover', 'viewport']}
                 instant
-                className="block bg-white rounded-xl shadow-soft overflow-hidden hover:-translate-y-1 transition-transform duration-300 group cursor-pointer"
+                className="group block overflow-hidden rounded-2xl border border-brand-brown/10 bg-white transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-brand-brown/10"
             >
-                <div className="relative h-64 overflow-hidden bg-gray-100">
-                    <img 
-                        src={product.images && product.images.length > 0 ? product.images[0] : 'https://placehold.co/400x400/8B4513/FFFFFF?text=Product'} 
-                        alt={product.name} 
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                <div className="relative aspect-[4/5] overflow-hidden bg-brand-light">
+                    <img
+                        src={product.images && product.images.length > 0 ? product.images[0] : 'https://placehold.co/400x400/8B4513/FFFFFF?text=Product'}
+                        alt={product.name}
+                        loading="lazy"
+                        decoding="async"
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                     <button
                         type="button"
                         onClick={handleAddToCart}
                         disabled={product.stock <= 0}
-                        className={`absolute right-3 top-3 rounded-full p-2.5 shadow-md transition hover:scale-105 ${isInCart ? 'bg-brand-brown text-white' : 'bg-white/90 text-brand-brown hover:bg-white'} disabled:cursor-not-allowed disabled:opacity-50`}
+                        className={`absolute right-3 top-3 rounded-full p-2.5 shadow-sm transition hover:scale-105 ${isInCart ? 'bg-brand-brown text-white' : 'bg-white/90 text-brand-brown hover:bg-white'} disabled:cursor-not-allowed disabled:opacity-50`}
                         aria-label="Add to cart"
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -83,30 +85,30 @@ export default function ProductCard({ product }) {
                         </svg>
                     </button>
                     {product.stock <= 0 && (
-                        <div className="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
-                            {t('product.out_of_stock') || 'Out of Stock'}
+                        <div className="absolute left-3 top-3 rounded-full bg-brand-dark px-2.5 py-1 text-xs font-bold text-white">
+                            {t('product.out_of_stock') || 'Out of stock'}
                         </div>
                     )}
                 </div>
                 <div className="p-5">
-                    <div className="text-xs text-gray-500 mb-1">{product.category?.name}</div>
-                    <h3 className="font-semibold text-lg text-brand-dark mb-2 hover:text-brand-brown truncate">{product.name}</h3>
-                    <div className="flex justify-between items-center mb-4 gap-2">
-                        <span className="font-bold text-xl text-brand-brown">
+                    <div className="mb-1 text-xs font-medium text-brand-brown/70">{product.category?.name}</div>
+                    <h3 className="mb-2 truncate font-semibold text-lg text-brand-dark transition group-hover:text-brand-brown">{product.name}</h3>
+                    <div className="mb-4 flex items-center justify-between gap-2">
+                        <span className="text-xl font-bold text-brand-brown">
                             {formatPrice(product.price_eur, product.price_ghs)}
                         </span>
-                        <span className="text-xs text-gray-500 text-right leading-5">
+                        <span className="text-right text-xs leading-5 text-gray-500">
                             {locationText}
                         </span>
                     </div>
-                    
-                    <button 
+
+                    <button
                         type="button"
                         onClick={handleBuyClick}
                         disabled={product.stock <= 0}
-                        className="w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded-md font-medium transition flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="flex w-full items-center justify-center gap-2 rounded-full bg-green-500 py-2.5 font-medium text-white transition hover:bg-green-600 disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" className="css-i6dzq1"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
                         {t('shop.whatsapp')}
                     </button>
                 </div>

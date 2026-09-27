@@ -8,9 +8,33 @@ import ServiceCard from '../Components/ServiceCard';
 import { useLanguage } from '../Contexts/LanguageContext';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
+// Curated imagery per top-level category (categories have no image of their own).
+const CATEGORY_IMAGES = {
+    'beauty-products': 'https://images.unsplash.com/photo-1617897903246-719242758050?auto=format&fit=crop&q=80&w=800',
+    'fashion': 'https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&q=80&w=800',
+    'accessories': 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&q=80&w=800',
+    'bags': 'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&q=80&w=800',
+    'shoes': 'https://images.unsplash.com/photo-1603487742131-4160ec999306?auto=format&fit=crop&q=80&w=800',
+    'hair-salon': 'https://images.unsplash.com/photo-1523263685509-57c1d050d19b?auto=format&fit=crop&q=80&w=800',
+    'spa': 'https://images.unsplash.com/photo-1519823551278-64ac92734fb1?auto=format&fit=crop&q=80&w=800',
+    'nails-wigs': 'https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=800',
+    'local-dishes': 'https://images.unsplash.com/photo-1604329760661-e71dc83f8f26?auto=format&fit=crop&q=80&w=800',
+    'drinks-beverages': 'https://images.unsplash.com/photo-1497534446932-c925b458314e?auto=format&fit=crop&q=80&w=800',
+    'spices-seasonings': 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&q=80&w=800',
+    'fruits-vegetables': 'https://images.unsplash.com/photo-1571771019784-3ff35f4f4277?auto=format&fit=crop&q=80&w=800',
+    'grains-ingredients': 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&q=80&w=800',
+};
+const FALLBACK_CATEGORY_IMAGE = 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&q=80&w=800';
+
 export default function Home({ heroContent, featuredProducts, featuredFoods, featuredServices, reviews, categories, auth }) {
     const { t } = useLanguage();
     const [currentSlide, setCurrentSlide] = useState(0);
+
+    // One tile per marketplace section (product/food/service), not just
+    // whichever three categories happen to sort first.
+    const featuredCategories = ['product', 'food', 'service']
+        .map((type) => categories?.find((c) => c.type === type))
+        .filter(Boolean);
 
     // Fallback default slides if admin has not populated database heroContent
     const defaultSlides = [
@@ -95,9 +119,6 @@ export default function Home({ heroContent, featuredProducts, featuredFoods, fea
                             {/* Carousel Slide Content Card */}
                             <div className="absolute inset-0 flex items-center justify-center">
                                 <div className="text-center px-4 max-w-4xl mx-auto z-20 transition-transform duration-700 transform translate-y-0">
-                                    <span className="inline-block text-xs md:text-sm font-bold tracking-widest text-brand-gold uppercase bg-brand-brown/40 border border-brand-gold/30 px-4 py-1.5 rounded-full mb-6 backdrop-blur-sm animate-pulse">
-                                        Mama Africa Luxury
-                                    </span>
                                     <h1 className="text-4xl md:text-7xl font-serif font-bold text-white mb-6 drop-shadow-xl leading-tight">
                                         {slide.title}
                                     </h1>
@@ -159,21 +180,24 @@ export default function Home({ heroContent, featuredProducts, featuredFoods, fea
                             <p className="text-gray-500 max-w-2xl mx-auto text-sm md:text-base">
                                 {t('home.explore_sub')}
                             </p>
-                            <div className="w-24 h-1 bg-brand-gold mx-auto mt-4"></div>
+                            <div className="w-16 h-1 bg-brand-gold mx-auto mt-4 rounded-full"></div>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                            {categories?.slice(0, 3).map(cat => (
-                                <Link 
-                                    key={cat.id} 
-                                    href={`/${cat.type === 'service' ? 'services' : 'shop'}?category=${cat.slug}`} 
+                            {featuredCategories.map((cat, index) => (
+                                <Link
+                                    key={cat.id}
+                                    href={`/${cat.type === 'service' ? 'services' : cat.type === 'food' ? 'foods' : 'shop'}?category=${cat.slug}`}
                                     prefetch={['hover', 'viewport']}
                                     instant
-                                    className="group relative h-80 rounded-2xl overflow-hidden shadow-soft"
+                                    className="group relative h-80 overflow-hidden rounded-2xl border border-brand-brown/10 animate-fadeInUp"
+                                    style={{ animationDelay: `${index * 100}ms` }}
                                 >
-                                    <img 
-                                        src={`https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&q=80&w=600&text=${encodeURIComponent(cat.name)}`} 
-                                        alt={cat.name} 
-                                        className="w-full h-full object-cover group-hover:scale-105 transition duration-500" 
+                                    <img
+                                        src={CATEGORY_IMAGES[cat.slug] || FALLBACK_CATEGORY_IMAGE}
+                                        alt={cat.name}
+                                        loading="lazy"
+                                        decoding="async"
+                                        className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
                                     <div className="absolute bottom-0 left-0 p-8">
@@ -203,12 +227,43 @@ export default function Home({ heroContent, featuredProducts, featuredFoods, fea
                                     <div className="w-24 h-1 bg-brand-gold mt-4"></div>
                                 </div>
                                 <Link href="/shop" prefetch={['hover', 'viewport']} instant className="text-brand-brown hover:text-brand-gold font-bold text-sm hidden sm:block">
-                                    {t('cart.continue')} →
+                                    {t('cart.continue')}
                                 </Link>
                             </div>
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                                {featuredProducts.map(product => (
-                                    <ProductCard key={product.id} product={product} />
+                                {featuredProducts.map((product, index) => (
+                                    <div key={product.id} className="animate-fadeInUp" style={{ animationDelay: `${index * 80}ms` }}>
+                                        <ProductCard product={product} />
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </section>
+                )}
+
+                {/* Featured Foods */}
+                {featuredFoods?.length > 0 && (
+                    <section className="py-20 bg-white">
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                            <div className="flex justify-between items-end mb-12">
+                                <div>
+                                    <h2 className="text-4xl font-serif font-bold text-brand-dark mb-2">
+                                        {t('home.featured_foods')}
+                                    </h2>
+                                    <p className="text-xs md:text-sm text-gray-500">
+                                        {t('home.featured_foods_sub')}
+                                    </p>
+                                    <div className="w-16 h-1 bg-brand-gold mt-4 rounded-full"></div>
+                                </div>
+                                <Link href="/foods" prefetch={['hover', 'viewport']} instant className="text-brand-brown hover:text-brand-gold font-bold text-sm hidden sm:block">
+                                    {t('nav.foods')}
+                                </Link>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                                {featuredFoods.map((food, index) => (
+                                    <div key={food.id} className="animate-fadeInUp" style={{ animationDelay: `${index * 80}ms` }}>
+                                        <FoodCard food={food} />
+                                    </div>
                                 ))}
                             </div>
                         </div>
@@ -217,7 +272,7 @@ export default function Home({ heroContent, featuredProducts, featuredFoods, fea
 
                 {/* Featured Services */}
                 {featuredServices?.length > 0 && (
-                    <section className="py-20 bg-white">
+                    <section className="py-20 bg-brand-light">
                         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                             <div className="flex justify-between items-end mb-12">
                                 <div>
@@ -227,15 +282,17 @@ export default function Home({ heroContent, featuredProducts, featuredFoods, fea
                                     <p className="text-xs md:text-sm text-gray-500">
                                         {t('home.featured_services_sub')}
                                     </p>
-                                    <div className="w-24 h-1 bg-brand-gold mt-4"></div>
+                                    <div className="w-16 h-1 bg-brand-gold mt-4 rounded-full"></div>
                                 </div>
                                 <Link href="/services" prefetch={['hover', 'viewport']} instant className="text-brand-brown hover:text-brand-gold font-bold text-sm hidden sm:block">
-                                    {t('services.book')} →
+                                    {t('services.book')}
                                 </Link>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                                {featuredServices.map(service => (
-                                    <ServiceCard key={service.id} service={service} />
+                                {featuredServices.map((service, index) => (
+                                    <div key={service.id} className="animate-fadeInUp" style={{ animationDelay: `${index * 80}ms` }}>
+                                        <ServiceCard service={service} />
+                                    </div>
                                 ))}
                             </div>
                         </div>

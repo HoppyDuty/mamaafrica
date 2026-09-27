@@ -1,8 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Link, usePage } from '@inertiajs/react';
-import { ShoppingCart, Menu, X, User as UserIcon } from 'lucide-react';
+import { ShoppingCart, Menu, X, Sun } from 'lucide-react';
 import { useLanguage } from '../Contexts/LanguageContext';
 import { useCurrency } from '../Contexts/CurrencyContext';
+
+function Mark() {
+    return (
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-dark">
+            <Sun className="h-5 w-5 text-brand-gold" strokeWidth={2} />
+        </span>
+    );
+}
 
 export default function Navbar({ user: propUser }) {
     const [isOpen, setIsOpen] = useState(false);
@@ -27,30 +35,32 @@ export default function Navbar({ user: propUser }) {
     ];
 
     return (
-        <nav className="bg-white shadow-soft sticky top-0 z-50">
+        <nav className="sticky top-0 z-50 border-b border-brand-brown/10 bg-white/95 backdrop-blur">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex justify-between h-16">
+                <div className="flex h-[68px] items-center justify-between">
                     {/* Logo & Desktop Nav */}
                     <div className="flex items-center">
-                        <Link href="/" prefetch={['hover', 'viewport']} instant className="flex-shrink-0 flex items-center">
-                            <span className="font-serif font-bold text-2xl text-brand-brown tracking-tight">Mama Africa</span>
+                        <Link href="/" prefetch={['hover', 'viewport']} instant className="flex flex-shrink-0 items-center gap-2.5">
+                            <Mark />
+                            <span className="font-serif font-bold text-xl text-brand-dark tracking-tight">Mama Africa</span>
                         </Link>
-                        <div className="hidden sm:ml-10 sm:flex sm:space-x-8">
+                        <div className="hidden sm:ml-9 sm:flex sm:items-center sm:gap-1">
                             {navLinks.map((link) => {
                                 const isActive = url === link.path || (link.path !== '/' && url.startsWith(link.path));
                                 return (
-                                    <Link 
+                                    <Link
                                         key={link.path}
-                                        href={link.path} 
+                                        href={link.path}
                                         prefetch={['hover', 'viewport']}
                                         instant
-                                        className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-semibold transition-colors duration-200 ${
-                                            isActive 
-                                                ? 'border-brand-gold text-brand-dark' 
-                                                : 'border-transparent text-gray-500 hover:text-brand-brown hover:border-brand-gold/50'
+                                        className={`relative px-3.5 py-2 text-[13.5px] font-semibold transition-colors duration-150 ${
+                                            isActive
+                                                ? 'text-brand-dark'
+                                                : 'text-gray-500 hover:text-brand-brown'
                                         }`}
                                     >
                                         {link.name}
+                                        <span className={`absolute inset-x-3 -bottom-px h-[2px] rounded-full bg-brand-gold transition-opacity duration-150 ${isActive ? 'opacity-100' : 'opacity-0'}`} />
                                     </Link>
                                 );
                             })}
@@ -58,35 +68,37 @@ export default function Navbar({ user: propUser }) {
                     </div>
 
                     {/* Right side: i18n, Currency, Cart, Profile */}
-                    <div className="hidden sm:ml-6 sm:flex sm:items-center space-x-4">
-                        <select 
-                            value={language} 
-                            onChange={(e) => setLanguage(e.target.value)}
-                            className="block w-full pl-3 pr-10 py-1 text-sm border-gray-300 focus:outline-none focus:ring-brand-gold focus:border-brand-gold rounded-md"
-                        >
-                            <option value="en">🇬🇧 EN</option>
-                            <option value="de">🇩🇪 DE</option>
-                            <option value="tw">🇬🇭 TW</option>
-                        </select>
+                    <div className="hidden sm:flex sm:items-center sm:gap-3">
+                        <div className="flex items-center rounded-full border border-brand-brown/15 bg-brand-light">
+                            <select
+                                value={language}
+                                onChange={(e) => setLanguage(e.target.value)}
+                                className="rounded-full border-0 bg-transparent py-1.5 pl-3.5 pr-7 text-xs font-semibold text-brand-dark focus:outline-none focus:ring-2 focus:ring-brand-gold/40"
+                            >
+                                <option value="en">EN</option>
+                                <option value="de">DE</option>
+                                <option value="tw">TW</option>
+                            </select>
+                            <span className="h-4 w-px bg-brand-brown/15" />
+                            <span className="px-3.5 text-xs font-semibold text-brand-brown">
+                                {currency === 'GHS' ? '₵ GHS' : '€ EUR'}
+                            </span>
+                        </div>
 
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-brand-gold/10 text-brand-brown border border-brand-gold/20">
-                            {currency === 'GHS' ? '₵ GHS' : '€ EUR'}
-                        </span>
-
-                        <Link href="/cart" prefetch={['hover', 'viewport']} instant className="relative inline-flex h-11 w-11 items-center justify-center rounded-full border border-brand-brown/20 bg-brand-brown/5 text-brand-brown shadow-sm transition hover:bg-brand-brown/10 focus:outline-none focus:ring-2 focus:ring-brand-gold">
-                            <ShoppingCart className="h-5 w-5" />
+                        <Link href="/cart" prefetch={['hover', 'viewport']} instant className="relative inline-flex h-10 w-10 items-center justify-center rounded-full text-brand-brown transition hover:bg-brand-light focus:outline-none focus:ring-2 focus:ring-brand-gold/40">
+                            <ShoppingCart className="h-[19px] w-[19px]" strokeWidth={1.75} />
                             {cartCount > 0 && (
-                                <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-gold px-1 text-[10px] font-bold text-white">
+                                <span className="absolute right-0.5 top-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-brand-gold px-1 text-[10px] font-bold text-white">
                                     {cartCount}
                                 </span>
                             )}
                         </Link>
                         {isAuthenticated ? (
-                            <Link href="/profile" prefetch={['hover', 'viewport']} instant className="p-2 text-gray-400 hover:text-brand-brown">
-                                <UserIcon className="h-6 w-6" />
+                            <Link href="/profile" prefetch={['hover', 'viewport']} instant className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-dark text-sm font-bold text-brand-gold transition hover:bg-brand-brown focus:outline-none focus:ring-2 focus:ring-brand-gold/40">
+                                {(user?.name?.[0] || '?').toUpperCase()}
                             </Link>
                         ) : (
-                            <Link href="/login" prefetch={['hover', 'viewport']} instant className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-brand-brown hover:bg-brand-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-gold">
+                            <Link href="/login" prefetch={['hover', 'viewport']} instant className="inline-flex items-center rounded-full bg-brand-brown px-5 py-2.5 text-[13.5px] font-semibold text-white transition hover:bg-brand-dark focus:outline-none focus:ring-2 focus:ring-brand-gold/40 focus:ring-offset-2">
                                 {t('nav.login')}
                             </Link>
                         )}
@@ -94,9 +106,9 @@ export default function Navbar({ user: propUser }) {
 
                     {/* Mobile menu button */}
                     <div className="flex items-center sm:hidden">
-                        <button 
+                        <button
                             onClick={() => setIsOpen(!isOpen)}
-                            className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-brand-gold"
+                            className="inline-flex items-center justify-center rounded-full p-2 text-brand-brown transition hover:bg-brand-light focus:outline-none focus:ring-2 focus:ring-brand-gold/40"
                         >
                             {isOpen ? <X className="block h-6 w-6" /> : <Menu className="block h-6 w-6" />}
                         </button>
@@ -108,62 +120,66 @@ export default function Navbar({ user: propUser }) {
             {isOpen && (
                 <>
                     <div className="sm:hidden fixed inset-0 z-40 bg-black/30 backdrop-blur-sm transition-all duration-300" onClick={() => setIsOpen(false)} />
-                    <div className={`sm:hidden fixed inset-y-0 left-0 z-50 w-[88%] max-w-xs transform bg-white border-r border-gray-100 shadow-2xl transition-transform duration-300 ease-out ${isOpen ? 'translate-x-0' : '-translate-x-full'}`} onClick={(e) => e.stopPropagation()}>
-                        <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-gray-200">
-                            <div>
-                                <p className="text-sm font-semibold text-gray-900">Mama Africa</p>
-                                <p className="text-xs text-gray-500">Navigation</p>
+                    <div className={`sm:hidden fixed inset-y-0 left-0 z-50 w-[88%] max-w-xs transform bg-white shadow-2xl transition-transform duration-300 ease-out ${isOpen ? 'translate-x-0' : '-translate-x-full'}`} onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center justify-between border-b border-brand-brown/10 px-4 py-4">
+                            <div className="flex items-center gap-2.5">
+                                <Mark />
+                                <span className="font-serif font-bold text-lg text-brand-dark">Mama Africa</span>
                             </div>
-                            <button onClick={() => setIsOpen(false)} className="p-2 rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-700">
+                            <button onClick={() => setIsOpen(false)} className="rounded-full p-2 text-brand-brown hover:bg-brand-light">
                                 <X className="h-5 w-5" />
                             </button>
                         </div>
-                        <div className="pt-2 pb-3 space-y-1">
-                            <Link href="/" onClick={() => setIsOpen(false)} className="border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
-                                {t('nav.home')}
-                            </Link>
-                            <Link href="/shop" onClick={() => setIsOpen(false)} className="border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
-                                {t('nav.shop')}
-                            </Link>
-                            <Link href="/services" onClick={() => setIsOpen(false)} className="border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
-                                {t('nav.services')}
-                            </Link>
-                            <Link href="/foods" onClick={() => setIsOpen(false)} className="border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
-                                {t('nav.foods')}
-                            </Link>
-                            <Link href="/about" onClick={() => setIsOpen(false)} className="border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
-                                {t('nav.about')}
-                            </Link>
-                            <Link href="/cart" onClick={() => setIsOpen(false)} className="border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
-                                {t('nav.cart')}
+                        <div className="space-y-0.5 px-2 pt-3 pb-2">
+                            {navLinks.map((link) => {
+                                const isActive = url === link.path || (link.path !== '/' && url.startsWith(link.path));
+                                return (
+                                    <Link
+                                        key={link.path}
+                                        href={link.path}
+                                        onClick={() => setIsOpen(false)}
+                                        className={`block rounded-xl px-3.5 py-2.5 text-[15px] font-semibold transition ${
+                                            isActive ? 'bg-brand-light text-brand-dark' : 'text-gray-500 hover:bg-brand-light hover:text-brand-brown'
+                                        }`}
+                                    >
+                                        {link.name}
+                                    </Link>
+                                );
+                            })}
+                            <Link href="/cart" onClick={() => setIsOpen(false)} className="flex items-center justify-between rounded-xl px-3.5 py-2.5 text-[15px] font-semibold text-gray-500 transition hover:bg-brand-light hover:text-brand-brown">
+                                <span className="flex items-center gap-2.5">
+                                    <ShoppingCart className="h-[18px] w-[18px]" strokeWidth={1.75} />
+                                    {t('nav.cart')}
+                                </span>
                                 {cartCount > 0 && (
-                                    <span className="ml-2 inline-flex rounded-full bg-brand-gold px-2 py-0.5 text-[10px] font-bold text-white">{cartCount}</span>
+                                    <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-gold px-1 text-[10px] font-bold text-white">{cartCount}</span>
                                 )}
                             </Link>
                             {isAuthenticated ? (
-                                <Link href="/profile" onClick={() => setIsOpen(false)} className="border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
+                                <Link href="/profile" onClick={() => setIsOpen(false)} className="block rounded-xl px-3.5 py-2.5 text-[15px] font-semibold text-gray-500 transition hover:bg-brand-light hover:text-brand-brown">
                                     {t('nav.profile')}
                                 </Link>
                             ) : (
-                                <Link href="/login" onClick={() => setIsOpen(false)} className="border-transparent text-brand-brown font-bold hover:bg-gray-50 hover:border-gray-300 block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
+                                <Link href="/login" onClick={() => setIsOpen(false)} className="mx-3.5 mt-2 block rounded-full bg-brand-brown px-4 py-2.5 text-center text-[15px] font-semibold text-white transition hover:bg-brand-dark">
                                     {t('nav.login')}
                                 </Link>
                             )}
                         </div>
-                        <div className="pt-4 pb-3 border-t border-gray-200 px-4">
-                            <div className="flex items-center justify-between gap-3">
-                                <select 
-                                    value={language} 
+                        <div className="flex items-center gap-3 border-t border-brand-brown/10 px-4 py-4">
+                            <div className="flex flex-1 items-center rounded-full border border-brand-brown/15 bg-brand-light">
+                                <select
+                                    value={language}
                                     onChange={(e) => setLanguage(e.target.value)}
-                                    className="block w-full rounded-md border border-gray-300 bg-white py-2 px-3 text-base text-gray-700 focus:border-brand-gold focus:outline-none focus:ring-brand-gold"
+                                    className="flex-1 rounded-full border-0 bg-transparent py-2 pl-3.5 pr-2 text-sm font-semibold text-brand-dark focus:outline-none focus:ring-2 focus:ring-brand-gold/40"
                                 >
                                     <option value="en">EN</option>
                                     <option value="de">DE</option>
                                     <option value="tw">TW</option>
                                 </select>
-                            </div>
-                            <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-brand-gold/10 px-3 py-2 text-xs font-bold text-brand-brown border border-brand-gold/20">
-                                {currency === 'GHS' ? '₵ GHS' : '€ EUR'}
+                                <span className="h-4 w-px bg-brand-brown/15" />
+                                <span className="px-3.5 text-sm font-semibold text-brand-brown">
+                                    {currency === 'GHS' ? '₵ GHS' : '€ EUR'}
+                                </span>
                             </div>
                         </div>
                     </div>

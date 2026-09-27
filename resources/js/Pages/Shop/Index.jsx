@@ -5,13 +5,12 @@ import Footer from '../../Components/Footer';
 import ProductCard from '../../Components/ProductCard';
 
 const ProductCardSkeleton = () => (
-    <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-soft animate-pulse">
-        <div className="h-40 w-full rounded-lg bg-gray-200" />
-        <div className="mt-4 h-4 w-3/4 rounded bg-gray-200" />
-        <div className="mt-2 h-4 w-1/2 rounded bg-gray-200" />
-        <div className="mt-4 flex items-center justify-between">
-            <div className="h-4 w-16 rounded bg-gray-200" />
-            <div className="h-8 w-20 rounded bg-gray-200" />
+    <div className="overflow-hidden rounded-2xl border border-brand-brown/10 bg-white animate-pulse">
+        <div className="aspect-[4/5] w-full bg-gray-100" />
+        <div className="p-5">
+            <div className="h-3 w-1/3 rounded bg-gray-100" />
+            <div className="mt-3 h-4 w-3/4 rounded bg-gray-100" />
+            <div className="mt-4 h-8 w-full rounded-full bg-gray-100" />
         </div>
     </div>
 );
@@ -25,7 +24,8 @@ export default function ShopIndex({ products = { data: [], links: [], total: 0 }
     const productLinks = Array.isArray(productCollection.links) ? productCollection.links : [];
 
     const visitShop = (params) => {
-        router.get('/shop', params, { preserveState: true, preserveScroll: true, only: ['products', 'filters'] });
+        // No preserveScroll: filter changes should always land back at the top of the page.
+        router.get('/shop', params, { preserveState: true, only: ['products', 'filters'] });
     };
 
     const handleFilterChange = (key, value) => {
@@ -33,13 +33,11 @@ export default function ShopIndex({ products = { data: [], links: [], total: 0 }
     };
 
     const handlePriceApply = () => {
-        const nextFilters = {
+        visitShop({
             ...filters,
             min_price: priceDraft.min,
             max_price: priceDraft.max,
-        };
-
-        visitShop(nextFilters);
+        });
     };
 
     const hasActiveFilters = Boolean(filters.search || filters.category || filters.country || filters.min_price || filters.max_price);
@@ -47,51 +45,69 @@ export default function ShopIndex({ products = { data: [], links: [], total: 0 }
 
     const renderFilterContent = () => (
         <div className="space-y-6">
-            <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 md:p-0 md:border-0 md:bg-transparent">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Search</label>
-                <input 
-                    type="text" 
-                    placeholder="Search products..." 
+            <div>
+                <label className="mb-2 block text-sm font-medium text-gray-700">Search</label>
+                <input
+                    type="text"
+                    placeholder="Search products..."
                     value={filters.search || ''}
                     onChange={(e) => handleFilterChange('search', e.target.value)}
-                    className="w-full border-gray-300 rounded-md shadow-sm focus:ring-brand-gold focus:border-brand-gold text-sm"
+                    className="w-full text-sm"
                 />
             </div>
 
             <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
-                <select 
-                    value={filters.category || ''}
-                    onChange={(e) => handleFilterChange('category', e.target.value)}
-                    className="w-full border-gray-300 rounded-md shadow-sm focus:ring-brand-gold focus:border-brand-gold text-sm"
-                >
-                    <option value="">All Categories</option>
+                <label className="mb-2 block text-sm font-medium text-gray-700">Category</label>
+                <div className="space-y-1">
+                    <button
+                        type="button"
+                        onClick={() => handleFilterChange('category', '')}
+                        className={`w-full rounded-lg px-3 py-2 text-left text-sm font-medium transition ${!filters.category ? 'bg-brand-brown text-white' : 'text-gray-600 hover:bg-brand-light'}`}
+                    >
+                        All categories
+                    </button>
                     {categories?.map(cat => (
-                        <optgroup key={cat.id} label={cat.name}>
-                            <option value={cat.slug || ''}>{cat.name}</option>
+                        <div key={cat.id}>
+                            <button
+                                type="button"
+                                onClick={() => handleFilterChange('category', cat.slug)}
+                                className={`w-full rounded-lg px-3 py-2 text-left text-sm font-semibold transition ${filters.category === cat.slug ? 'bg-brand-brown text-white' : 'text-brand-dark hover:bg-brand-light'}`}
+                            >
+                                {cat.name}
+                            </button>
                             {cat.children?.map(child => (
-                                <option key={child.id} value={child.slug || ''}>-- {child.name}</option>
+                                <button
+                                    key={child.id}
+                                    type="button"
+                                    onClick={() => handleFilterChange('category', child.slug)}
+                                    className={`w-full rounded-lg py-1.5 pl-6 pr-3 text-left text-xs font-medium transition ${filters.category === child.slug ? 'bg-brand-gold/15 font-bold text-brand-brown' : 'text-gray-500 hover:bg-brand-light'}`}
+                                >
+                                    {child.name}
+                                </button>
                             ))}
-                        </optgroup>
+                        </div>
                     ))}
-                </select>
+                </div>
             </div>
 
             <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
-                <select 
-                    value={filters.country || ''}
-                    onChange={(e) => handleFilterChange('country', e.target.value)}
-                    className="w-full border-gray-300 rounded-md shadow-sm focus:ring-brand-gold focus:border-brand-gold text-sm"
-                >
-                    <option value="">All Locations</option>
-                    <option value="DE">Germany</option>
-                    <option value="GH">Ghana</option>
-                </select>
+                <label className="mb-2 block text-sm font-medium text-gray-700">Location</label>
+                <div className="flex gap-2">
+                    {[['', 'All'], ['DE', 'Germany'], ['GH', 'Ghana']].map(([value, label]) => (
+                        <button
+                            key={value}
+                            type="button"
+                            onClick={() => handleFilterChange('country', value)}
+                            className={`flex-1 rounded-lg border py-2 text-xs font-medium transition ${(filters.country || '') === value ? 'border-brand-brown bg-brand-brown text-white' : 'border-brand-brown/15 text-gray-600 hover:bg-brand-light'}`}
+                        >
+                            {label}
+                        </button>
+                    ))}
+                </div>
             </div>
 
             <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Price range</label>
+                <label className="mb-2 block text-sm font-medium text-gray-700">Price range (€)</label>
                 <div className="grid grid-cols-2 gap-2">
                     <input
                         type="number"
@@ -100,7 +116,7 @@ export default function ShopIndex({ products = { data: [], links: [], total: 0 }
                         placeholder="Min"
                         value={priceDraft.min}
                         onChange={(e) => setPriceDraft((prev) => ({ ...prev, min: e.target.value }))}
-                        className="w-full border-gray-300 rounded-md shadow-sm focus:ring-brand-gold focus:border-brand-gold text-sm"
+                        className="w-full text-sm"
                     />
                     <input
                         type="number"
@@ -109,60 +125,63 @@ export default function ShopIndex({ products = { data: [], links: [], total: 0 }
                         placeholder="Max"
                         value={priceDraft.max}
                         onChange={(e) => setPriceDraft((prev) => ({ ...prev, max: e.target.value }))}
-                        className="w-full border-gray-300 rounded-md shadow-sm focus:ring-brand-gold focus:border-brand-gold text-sm"
+                        className="w-full text-sm"
                     />
                 </div>
                 <button
                     type="button"
                     onClick={handlePriceApply}
-                    className="mt-3 w-full rounded-lg border border-brand-brown/20 px-3 py-2 text-sm font-medium text-brand-brown hover:bg-brand-brown/5"
+                    className="mt-3 w-full rounded-full border border-brand-brown/20 px-3 py-2 text-sm font-medium text-brand-brown transition hover:bg-brand-light"
                 >
                     Apply price filter
                 </button>
             </div>
 
-            <div className="flex flex-col gap-3 border-t border-gray-200 pt-4">
+            <div className="flex flex-col gap-3 border-t border-brand-brown/10 pt-4">
                 {hasActiveFilters && (
-                    <button 
+                    <button
                         type="button"
                         onClick={() => {
                             visitShop({});
                             setIsMobileFiltersOpen(false);
                         }}
-                        className="w-full rounded-lg border border-red-200 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50"
+                        className="w-full rounded-full border border-red-200 px-4 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50"
                     >
-                        Clear Filters
+                        Clear filters
                     </button>
                 )}
-                <button 
+                <button
                     type="button"
                     onClick={() => setIsMobileFiltersOpen(false)}
-                    className="w-full rounded-lg bg-brand-brown px-4 py-2 text-sm font-semibold text-white hover:bg-brand-dark"
+                    className="w-full rounded-full bg-brand-brown px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-dark md:hidden"
                 >
-                    Show Results
+                    Show results
                 </button>
             </div>
         </div>
     );
 
     return (
-        <div className="min-h-screen flex flex-col bg-brand-light">
+        <div className="flex min-h-screen flex-col bg-brand-light">
             <Head title="Shop" />
             <Navbar user={auth?.user} />
 
-            <div className="bg-brand-dark py-12 text-white text-center">
-                <h1 className="text-4xl font-serif font-bold">Shop Our Collection</h1>
-                <p className="mt-4 text-gray-300 max-w-2xl mx-auto">Discover premium beauty products, fashion styles, and accessories from Mama Africa.</p>
+            <div className="relative overflow-hidden bg-brand-dark py-14 text-center text-white">
+                <div className="pointer-events-none absolute -left-16 -top-24 h-72 w-72 rounded-full bg-brand-gold/10 blur-3xl" />
+                <div className="relative mx-auto max-w-2xl px-4">
+                    <h1 className="font-serif text-4xl font-bold">Shop our collection</h1>
+                    <p className="mt-4 text-gray-300">Premium beauty products, fashion styles, and accessories from Mama Africa.</p>
+                </div>
             </div>
 
-            <main className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12 w-full flex flex-col md:flex-row gap-8">
-                <div className="md:hidden flex items-center justify-between rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-sm mb-4">
+            <main className="mx-auto flex w-full max-w-7xl flex-grow flex-col gap-8 px-4 py-8 sm:px-6 sm:py-12 md:flex-row lg:px-8">
+                <div className="flex items-center justify-between rounded-2xl border border-brand-brown/10 bg-white px-4 py-3 md:hidden">
                     <button
                         type="button"
                         onClick={() => setIsMobileFiltersOpen(true)}
                         className="flex items-center gap-2 text-sm font-semibold text-brand-brown"
                     >
-                        <span>Filter & Sort</span>
+                        <span>Filter & sort</span>
                         <span className="rounded-full bg-brand-gold/10 px-2 py-0.5 text-xs text-brand-brown">{totalCount}</span>
                     </button>
                     {hasActiveFilters ? (
@@ -173,26 +192,24 @@ export default function ShopIndex({ products = { data: [], links: [], total: 0 }
                         <span className="text-sm text-gray-500">Showing {totalCount}</span>
                     )}
                 </div>
-                
-                {/* Sidebar Filters */}
-                <aside className="hidden md:block w-full md:w-64 flex-shrink-0">
-                    <div className="bg-white p-6 rounded-xl shadow-soft sticky top-24">
-                        <h3 className="font-bold text-lg mb-4 text-brand-dark border-b pb-2">Filters</h3>
+
+                <aside className="hidden w-full flex-shrink-0 md:block md:w-64">
+                    <div className="sticky top-24 rounded-2xl border border-brand-brown/10 bg-white p-6">
+                        <h3 className="mb-4 border-b border-brand-brown/10 pb-3 text-lg font-bold text-brand-dark">Filters</h3>
                         {renderFilterContent()}
                     </div>
                 </aside>
 
-                {/* Mobile Filter Drawer */}
                 {isMobileFiltersOpen && (
                     <>
                         <div className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm transition-all duration-300 md:hidden" onClick={() => setIsMobileFiltersOpen(false)} />
-                        <div className={`fixed inset-y-0 left-0 z-50 w-[88%] max-w-sm transform bg-white shadow-2xl overflow-y-auto p-6 transition-transform duration-300 ease-out md:hidden ${isMobileFiltersOpen ? 'translate-x-0' : '-translate-x-full'}`} onClick={(e) => e.stopPropagation()}>
-                            <div className="flex items-center justify-between border-b border-gray-200 pb-4 mb-6">
+                        <div className={`fixed inset-y-0 left-0 z-50 w-[88%] max-w-sm transform overflow-y-auto bg-white p-6 shadow-2xl transition-transform duration-300 ease-out md:hidden ${isMobileFiltersOpen ? 'translate-x-0' : '-translate-x-full'}`} onClick={(e) => e.stopPropagation()}>
+                            <div className="mb-6 flex items-center justify-between border-b border-brand-brown/10 pb-4">
                                 <div>
-                                    <h3 className="text-lg font-semibold text-brand-dark">Filter & Sort</h3>
+                                    <h3 className="text-lg font-semibold text-brand-dark">Filter & sort</h3>
                                     <p className="text-sm text-gray-500">{totalCount} products available</p>
                                 </div>
-                                <button type="button" onClick={() => setIsMobileFiltersOpen(false)} className="rounded-full p-2 text-gray-500 hover:bg-gray-100">
+                                <button type="button" onClick={() => setIsMobileFiltersOpen(false)} className="rounded-full p-2 text-gray-500 hover:bg-brand-light">
                                     ✕
                                 </button>
                             </div>
@@ -201,12 +218,11 @@ export default function ShopIndex({ products = { data: [], links: [], total: 0 }
                     </>
                 )}
 
-                {/* Product Grid */}
                 <div className="flex-grow">
                     <Deferred
                         data={['products', 'filters']}
                         fallback={(
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                                 {Array.from({ length: 6 }).map((_, index) => (
                                     <ProductCardSkeleton key={index} />
                                 ))}
@@ -214,40 +230,43 @@ export default function ShopIndex({ products = { data: [], links: [], total: 0 }
                         )}
                     >
                         {productItems.length === 0 ? (
-                            <div className="bg-white p-12 rounded-xl shadow-soft text-center">
-                                <p className="text-gray-500 text-lg">No products found matching your criteria.</p>
-                                <button onClick={() => visitShop({})} className="mt-4 text-brand-brown underline">Clear all filters</button>
+                            <div className="rounded-2xl border border-brand-brown/10 bg-white p-12 text-center">
+                                <p className="text-lg text-gray-500">No products found matching your criteria.</p>
+                                <button onClick={() => visitShop({})} className="mt-4 font-semibold text-brand-brown underline">Clear all filters</button>
                             </div>
                         ) : (
                             <>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                                    {productItems.map(product => (
-                                        <ProductCard key={product.id} product={product} />
+                                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                                    {productItems.map((product, index) => (
+                                        <div key={product.id} className="animate-fadeInUp" style={{ animationDelay: `${Math.min(index * 60, 300)}ms` }}>
+                                            <ProductCard product={product} />
+                                        </div>
                                     ))}
                                 </div>
-                                
-                                {/* Pagination */}
-                                <div className="mt-12 flex justify-center gap-2">
-                                    {productLinks.map((link, i) => (
-                                        link.url ? (
-                                            <Link 
-                                                key={i} 
-                                                href={link.url}
-                                                only={['products', 'filters']}
-                                                preserveScroll
-                                                preserveState
-                                                dangerouslySetInnerHTML={{ __html: link.label }}
-                                                className={`px-4 py-2 rounded-md ${link.active ? 'bg-brand-brown text-white' : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'}`}
-                                            />
-                                        ) : (
-                                            <span 
-                                                key={i} 
-                                                dangerouslySetInnerHTML={{ __html: link.label }}
-                                                className="px-4 py-2 rounded-md bg-white text-gray-400 border border-gray-200 opacity-50 cursor-not-allowed"
-                                            />
-                                        )
-                                    ))}
-                                </div>
+
+                                {productLinks.length > 3 && (
+                                    <div className="mt-12 flex flex-wrap justify-center gap-2">
+                                        {productLinks.map((link, i) => (
+                                            link.url ? (
+                                                <Link
+                                                    key={i}
+                                                    href={link.url}
+                                                    only={['products', 'filters']}
+                                                    preserveScroll
+                                                    preserveState
+                                                    dangerouslySetInnerHTML={{ __html: link.label }}
+                                                    className={`rounded-full px-4 py-2 text-sm font-medium transition ${link.active ? 'bg-brand-brown text-white' : 'border border-brand-brown/15 bg-white text-gray-600 hover:bg-brand-light'}`}
+                                                />
+                                            ) : (
+                                                <span
+                                                    key={i}
+                                                    dangerouslySetInnerHTML={{ __html: link.label }}
+                                                    className="cursor-not-allowed rounded-full border border-brand-brown/10 bg-white px-4 py-2 text-sm text-gray-300"
+                                                />
+                                            )
+                                        ))}
+                                    </div>
+                                )}
                             </>
                         )}
                     </Deferred>

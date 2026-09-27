@@ -33,6 +33,7 @@ export default function Footer() {
                     <ul className="space-y-2 text-sm text-gray-400">
                         <li><Link href="/" prefetch={['hover', 'viewport']} instant className="hover:text-brand-gold">Home</Link></li>
                         <li><Link href="/shop" prefetch={['hover', 'viewport']} instant className="hover:text-brand-gold">Shop</Link></li>
+                        <li><Link href="/foods" prefetch={['hover', 'viewport']} instant className="hover:text-brand-gold">Food</Link></li>
                         <li><Link href="/services" prefetch={['hover', 'viewport']} instant className="hover:text-brand-gold">Services</Link></li>
                         <li><Link href="/about" prefetch={['hover', 'viewport']} instant className="hover:text-brand-gold">About Us</Link></li>
                     </ul>
@@ -42,6 +43,8 @@ export default function Footer() {
                     <ul className="space-y-2 text-sm text-gray-400">
                         <li><Link href="/shop?category=beauty-products" prefetch={['hover', 'viewport']} instant className="hover:text-brand-gold">Beauty Products</Link></li>
                         <li><Link href="/shop?category=fashion" prefetch={['hover', 'viewport']} instant className="hover:text-brand-gold">Fashion</Link></li>
+                        <li><Link href="/foods?category=local-dishes" prefetch={['hover', 'viewport']} instant className="hover:text-brand-gold">Traditional Dishes</Link></li>
+                        <li><Link href="/foods?category=spices-seasonings" prefetch={['hover', 'viewport']} instant className="hover:text-brand-gold">Spices & Seasonings</Link></li>
                         <li><Link href="/services?category=hair-salon" prefetch={['hover', 'viewport']} instant className="hover:text-brand-gold">Hair Salon</Link></li>
                         <li><Link href="/services?category=spa" prefetch={['hover', 'viewport']} instant className="hover:text-brand-gold">Spa & Care</Link></li>
                     </ul>
