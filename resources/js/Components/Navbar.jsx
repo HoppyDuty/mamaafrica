@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Link, usePage } from '@inertiajs/react';
 import { ShoppingCart, Menu, X } from 'lucide-react';
 import AfricaIcon from './icons/AfricaIcon';
@@ -47,7 +48,78 @@ export default function Navbar({ user: propUser }) {
         { name: t('nav.about'), path: '/about' },
     ];
 
+    const mobileMenu = isOpen && typeof document !== 'undefined' ? createPortal(
+        <>
+            <div className="sm:hidden fixed inset-0 z-40 bg-black/30 backdrop-blur-sm transition-all duration-300" onClick={() => setIsOpen(false)} />
+            <div className={`sm:hidden fixed inset-y-0 left-0 z-50 w-[88%] max-w-xs transform bg-white shadow-2xl transition-transform duration-300 ease-out ${isOpen ? 'translate-x-0' : '-translate-x-full'}`} onClick={(e) => e.stopPropagation()}>
+                <div className="flex items-center justify-between border-b border-brand-brown/10 px-4 py-4">
+                    <div className="flex items-center gap-2.5">
+                        <Mark />
+                        <span className="font-serif font-bold text-lg text-brand-dark">Mama Africa</span>
+                    </div>
+                    <button onClick={() => setIsOpen(false)} className="rounded-full p-2 text-brand-brown hover:bg-brand-light">
+                        <X className="h-5 w-5" />
+                    </button>
+                </div>
+                <div className="space-y-0.5 px-2 pt-3 pb-2">
+                    {navLinks.map((link) => {
+                        const isActive = url === link.path || (link.path !== '/' && url.startsWith(link.path));
+                        return (
+                            <Link
+                                key={link.path}
+                                href={link.path}
+                                onClick={() => setIsOpen(false)}
+                                className={`block rounded-xl px-3.5 py-2.5 text-[15px] font-semibold transition ${
+                                    isActive ? 'bg-brand-light text-brand-dark' : 'text-gray-500 hover:bg-brand-light hover:text-brand-brown'
+                                }`}
+                            >
+                                {link.name}
+                            </Link>
+                        );
+                    })}
+                    <Link href="/cart" onClick={() => setIsOpen(false)} className="flex items-center justify-between rounded-xl px-3.5 py-2.5 text-[15px] font-semibold text-gray-500 transition hover:bg-brand-light hover:text-brand-brown">
+                        <span className="flex items-center gap-2.5">
+                            <ShoppingCart className="h-[18px] w-[18px]" strokeWidth={1.75} />
+                            {t('nav.cart')}
+                        </span>
+                        {cartCount > 0 && (
+                            <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-gold px-1 text-[10px] font-bold text-white">{cartCount}</span>
+                        )}
+                    </Link>
+                    {isAuthenticated ? (
+                        <Link href="/profile" onClick={() => setIsOpen(false)} className="block rounded-xl px-3.5 py-2.5 text-[15px] font-semibold text-gray-500 transition hover:bg-brand-light hover:text-brand-brown">
+                            {t('nav.profile')}
+                        </Link>
+                    ) : (
+                        <Link href="/login" onClick={() => setIsOpen(false)} className="mx-3.5 mt-2 block rounded-full bg-brand-brown px-4 py-2.5 text-center text-[15px] font-semibold text-white transition hover:bg-brand-dark">
+                            {t('nav.login')}
+                        </Link>
+                    )}
+                </div>
+                <div className="flex items-center gap-3 border-t border-brand-brown/10 px-4 py-4">
+                    <div className="flex flex-1 items-center rounded-full border border-brand-brown/15 bg-brand-light">
+                        <select
+                            value={language}
+                            onChange={(e) => setLanguage(e.target.value)}
+                            className="flex-1 rounded-full border-0 bg-transparent py-2 pl-3.5 pr-2 text-sm font-semibold text-brand-dark focus:outline-none focus:ring-2 focus:ring-brand-gold/40"
+                        >
+                            <option value="en">EN</option>
+                            <option value="de">DE</option>
+                            <option value="tw">TW</option>
+                        </select>
+                        <span className="h-4 w-px bg-brand-brown/15" />
+                        <span className="px-3.5 text-sm font-semibold text-brand-brown">
+                            {currency === 'GHS' ? '₵ GHS' : '€ EUR'}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </>,
+        document.body
+    ) : null;
+
     return (
+        <>
         <nav className="sticky top-0 z-50 border-b border-brand-brown/10 bg-white/95 backdrop-blur">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex h-[68px] items-center justify-between">
@@ -128,76 +200,8 @@ export default function Navbar({ user: propUser }) {
                     </div>
                 </div>
             </div>
-
-            {/* Mobile Menu */}
-            {isOpen && (
-                <>
-                    <div className="sm:hidden fixed inset-0 z-40 bg-black/30 backdrop-blur-sm transition-all duration-300" onClick={() => setIsOpen(false)} />
-                    <div className={`sm:hidden fixed inset-y-0 left-0 z-50 w-[88%] max-w-xs transform bg-white shadow-2xl transition-transform duration-300 ease-out ${isOpen ? 'translate-x-0' : '-translate-x-full'}`} onClick={(e) => e.stopPropagation()}>
-                        <div className="flex items-center justify-between border-b border-brand-brown/10 px-4 py-4">
-                            <div className="flex items-center gap-2.5">
-                                <Mark />
-                                <span className="font-serif font-bold text-lg text-brand-dark">Mama Africa</span>
-                            </div>
-                            <button onClick={() => setIsOpen(false)} className="rounded-full p-2 text-brand-brown hover:bg-brand-light">
-                                <X className="h-5 w-5" />
-                            </button>
-                        </div>
-                        <div className="space-y-0.5 px-2 pt-3 pb-2">
-                            {navLinks.map((link) => {
-                                const isActive = url === link.path || (link.path !== '/' && url.startsWith(link.path));
-                                return (
-                                    <Link
-                                        key={link.path}
-                                        href={link.path}
-                                        onClick={() => setIsOpen(false)}
-                                        className={`block rounded-xl px-3.5 py-2.5 text-[15px] font-semibold transition ${
-                                            isActive ? 'bg-brand-light text-brand-dark' : 'text-gray-500 hover:bg-brand-light hover:text-brand-brown'
-                                        }`}
-                                    >
-                                        {link.name}
-                                    </Link>
-                                );
-                            })}
-                            <Link href="/cart" onClick={() => setIsOpen(false)} className="flex items-center justify-between rounded-xl px-3.5 py-2.5 text-[15px] font-semibold text-gray-500 transition hover:bg-brand-light hover:text-brand-brown">
-                                <span className="flex items-center gap-2.5">
-                                    <ShoppingCart className="h-[18px] w-[18px]" strokeWidth={1.75} />
-                                    {t('nav.cart')}
-                                </span>
-                                {cartCount > 0 && (
-                                    <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-gold px-1 text-[10px] font-bold text-white">{cartCount}</span>
-                                )}
-                            </Link>
-                            {isAuthenticated ? (
-                                <Link href="/profile" onClick={() => setIsOpen(false)} className="block rounded-xl px-3.5 py-2.5 text-[15px] font-semibold text-gray-500 transition hover:bg-brand-light hover:text-brand-brown">
-                                    {t('nav.profile')}
-                                </Link>
-                            ) : (
-                                <Link href="/login" onClick={() => setIsOpen(false)} className="mx-3.5 mt-2 block rounded-full bg-brand-brown px-4 py-2.5 text-center text-[15px] font-semibold text-white transition hover:bg-brand-dark">
-                                    {t('nav.login')}
-                                </Link>
-                            )}
-                        </div>
-                        <div className="flex items-center gap-3 border-t border-brand-brown/10 px-4 py-4">
-                            <div className="flex flex-1 items-center rounded-full border border-brand-brown/15 bg-brand-light">
-                                <select
-                                    value={language}
-                                    onChange={(e) => setLanguage(e.target.value)}
-                                    className="flex-1 rounded-full border-0 bg-transparent py-2 pl-3.5 pr-2 text-sm font-semibold text-brand-dark focus:outline-none focus:ring-2 focus:ring-brand-gold/40"
-                                >
-                                    <option value="en">EN</option>
-                                    <option value="de">DE</option>
-                                    <option value="tw">TW</option>
-                                </select>
-                                <span className="h-4 w-px bg-brand-brown/15" />
-                                <span className="px-3.5 text-sm font-semibold text-brand-brown">
-                                    {currency === 'GHS' ? '₵ GHS' : '€ EUR'}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </>
-            )}
         </nav>
+        {mobileMenu}
+        </>
     );
 }
