@@ -4,6 +4,7 @@ import { useCurrency } from '../Contexts/CurrencyContext';
 import { useLanguage } from '../Contexts/LanguageContext';
 import StoreSelectorModal from './StoreSelectorModal';
 import Snackbar from './Snackbar';
+import { cloudinaryUrl } from '../utils/cloudinaryUrl';
 
 export default function FoodCard({ food }) {
     const { formatPrice } = useCurrency();
@@ -67,7 +68,7 @@ export default function FoodCard({ food }) {
             >
                 <div className="relative aspect-[4/5] overflow-hidden bg-brand-light">
                     <img
-                        src={food.images?.[0] || 'https://placehold.co/400x400/FF6B35/FFFFFF?text=Food'}
+                        src={food.images?.[0] ? cloudinaryUrl(food.images[0], 400) : 'https://placehold.co/400x400/FF6B35/FFFFFF?text=Food'}
                         alt={food.name}
                         loading="lazy"
                         decoding="async"

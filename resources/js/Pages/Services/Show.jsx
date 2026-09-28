@@ -7,6 +7,7 @@ import ServiceCard from '../../Components/ServiceCard';
 import Snackbar from '../../Components/Snackbar';
 import { useCurrency } from '../../Contexts/CurrencyContext';
 import { useLanguage } from '../../Contexts/LanguageContext';
+import { cloudinaryUrl } from '../../utils/cloudinaryUrl';
 
 export default function ServiceShow({ service, related = [], auth }) {
     const { formatPrice } = useCurrency();
@@ -63,7 +64,7 @@ export default function ServiceShow({ service, related = [], auth }) {
                 <div className="overflow-hidden rounded-2xl border border-brand-brown/10 bg-white animate-fadeInUp">
                     <div className="relative h-[420px] sm:h-[520px] md:h-[620px]">
                         <img
-                            src={mainImage}
+                            src={cloudinaryUrl(mainImage, 900)}
                             alt={service.name}
                             className="h-full w-full object-cover"
                         />
@@ -97,7 +98,7 @@ export default function ServiceShow({ service, related = [], auth }) {
                                     onClick={() => setMainImage(img)}
                                     className={`h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg border-2 transition ${mainImage === img ? 'border-brand-gold' : 'border-transparent opacity-70 hover:opacity-100'}`}
                                 >
-                                    <img src={img} alt={`${service.name} preview ${index + 1}`} className="h-full w-full object-cover" />
+                                    <img src={cloudinaryUrl(img, 80)} alt={`${service.name} preview ${index + 1}`} loading="lazy" className="h-full w-full object-cover" />
                                 </button>
                             ))}
                         </div>

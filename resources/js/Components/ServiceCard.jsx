@@ -4,6 +4,7 @@ import { useCurrency } from '../Contexts/CurrencyContext';
 import { useLanguage } from '../Contexts/LanguageContext';
 import StoreSelectorModal from './StoreSelectorModal';
 import Snackbar from './Snackbar';
+import { cloudinaryUrl } from '../utils/cloudinaryUrl';
 
 export default function ServiceCard({ service }) {
     const { formatPrice } = useCurrency();
@@ -67,7 +68,7 @@ export default function ServiceCard({ service }) {
             >
                 <div className="relative aspect-[4/5] overflow-hidden bg-brand-light">
                     <img
-                        src={service.images && service.images.length > 0 ? service.images[0] : 'https://placehold.co/400x400/D4AF37/FFFFFF?text=Service'}
+                        src={service.images && service.images.length > 0 ? cloudinaryUrl(service.images[0], 400) : 'https://placehold.co/400x400/D4AF37/FFFFFF?text=Service'}
                         alt={service.name}
                         loading="lazy"
                         decoding="async"

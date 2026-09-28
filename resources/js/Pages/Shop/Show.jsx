@@ -7,6 +7,7 @@ import ProductCard from '../../Components/ProductCard';
 import Snackbar from '../../Components/Snackbar';
 import { useCurrency } from '../../Contexts/CurrencyContext';
 import { useLanguage } from '../../Contexts/LanguageContext';
+import { cloudinaryUrl } from '../../utils/cloudinaryUrl';
 
 export default function ProductShow({ product, related, auth }) {
     const { formatPrice } = useCurrency();
@@ -67,7 +68,7 @@ export default function ProductShow({ product, related, auth }) {
 
                         <div className="border-brand-brown/10 p-4 sm:p-6 md:border-r md:p-8">
                             <div className="relative mb-4 h-[420px] w-full overflow-hidden rounded-2xl bg-brand-light md:h-[520px]">
-                                <img src={mainImage} alt={product.name} className="h-full w-full object-cover" />
+                                <img src={cloudinaryUrl(mainImage, 800)} alt={product.name} className="h-full w-full object-cover" />
                                 {product.stock <= 0 && (
                                     <div className="absolute right-4 top-4 rounded-full bg-brand-dark px-3 py-1 text-sm font-bold text-white">
                                         Out of stock
@@ -94,7 +95,7 @@ export default function ProductShow({ product, related, auth }) {
                                             onClick={() => setMainImage(img)}
                                             className={`h-20 min-w-[85px] overflow-hidden rounded-xl border-2 transition ${mainImage === img ? 'border-brand-gold' : 'border-transparent opacity-70 hover:opacity-100'}`}
                                         >
-                                            <img src={img} alt="" className="h-full w-full object-cover" />
+                                            <img src={cloudinaryUrl(img, 90)} alt="" loading="lazy" className="h-full w-full object-cover" />
                                         </button>
                                     ))}
                                 </div>
